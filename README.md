@@ -23,7 +23,11 @@ Near-term or currently working on goals:
  Not planned or out-of-scope:
  - Linkshell support
  
- ### Unsolved architectural questions
+ ### Architecture
+ A rough diagram of GuildChat's current architecture plan:  
+ <img src="https://user-images.githubusercontent.com/44521335/204253345-54521c84-45fd-48e9-ad63-2947cd870d2a.svg" width=50% height=50% />
+
+ #### Questions
   - How will Free Company users be verified?
   - How will the co-ordinator verify that plugin users are who they say they are?
     - A system similar to Mare Synchronos with user-verified secret keys?

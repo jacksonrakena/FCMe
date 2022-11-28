@@ -1,7 +1,11 @@
+using System.Buffers;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using GuildChat.Server.Structures;
+using GuildChat.Server.Structures.Packets.Client;
+using GuildChat.Server.Structures.Packets.Server;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GuildChat.Server.Controllers;
@@ -34,9 +38,9 @@ public class ApiController : ControllerBase
         }
     }
 
-    public async Task SendToSocketAsync(WebSocket socket, string data)
+    public async Task SendToSocketAsync<TData>(WebSocket socket, ClientPacket<TData> data) where TData : IPacketData
     {
-        
+        await socket.SendAsync(await data.SerializeAsync(), WebSocketMessageType.Text, true, CancellationToken.None);
     }
 
     public async Task Accept(WebSocket socket)
@@ -50,30 +54,87 @@ public class ApiController : ControllerBase
             }
         };
 
-        await socket.SendAsync(new ArraySegment<byte>(JsonSerializer.SerializeToUtf8Bytes(data)), WebSocketMessageType.Text, true, CancellationToken.None);
-
-        var buffer = new byte[1024 * 4];
-        var receiveResult = await socket.ReceiveAsync(
-            new ArraySegment<byte>(buffer), CancellationToken.None);
-
-        dynamic obj = JsonSerializer.Deserialize<dynamic>(buffer);
-        Console.Write(obj.t);
-        
-        while (!receiveResult.CloseStatus.HasValue)
+        var helloPacket = new HelloPacket
         {
-            await socket.SendAsync(
-                new ArraySegment<byte>(buffer, 0, receiveResult.Count),
-                receiveResult.MessageType,
-                receiveResult.EndOfMessage,
-                CancellationToken.None);
+            Event = ClientEventType.Hello,
+            Data = new HelloPacketData
+            {
+                HeartbeatIntervalMilliseconds = 45_000
+            }
+        };
+        await SendToSocketAsync(socket, new HelloPacket());
+        var authorized = false;
+        using var memory = MemoryPool<byte>.Shared.Rent(1024 * 4);
 
-            receiveResult = await socket.ReceiveAsync(
-                new ArraySegment<byte>(buffer), CancellationToken.None);
+        while (socket.State == WebSocketState.Open)
+        {
+            try
+            {
+                ValueWebSocketReceiveResult request = await socket.ReceiveAsync(memory.Memory, CancellationToken.None);
+                switch (request.MessageType)
+                {
+                    case WebSocketMessageType.Text:
+                        var packet = JsonDocument.Parse(memory.Memory[..request.Count]).Deserialize<ServerPacket>();
+                        Console.WriteLine(packet.Event.ToString("F"));
+                        switch (packet.Event)
+                        {
+                            case ServerEventType.Authorize:
+                                var authorizeData = packet.Data.Deserialize<AuthorizePacketData>();
+                                if (authorizeData.Username != "abyssal" && authorizeData.Password != "password")
+                                {
+                                    await SendToSocketAsync(socket, new GoodbyePacket
+                                    {
+                                        Data = new GoodbyePacketData { Reason = ConnectionTerminationReason.AuthorizeFailed },
+                                        Event = ClientEventType.Goodbye
+                                    });
+                                    await socket.CloseAsync(
+                                        WebSocketCloseStatus.NormalClosure,
+                                        "Failed to authorize.",
+                                        CancellationToken.None);
+                                    return;
+                                }
+
+                                await SendToSocketAsync(socket, new ReadyPacket
+                                {
+                                    Event = ClientEventType.Ready,
+                                    Data = new ReadyPacketData()
+                                });
+                                break;
+                            default:
+                                await SendToSocketAsync(socket, new GoodbyePacket
+                                {
+                                    Data = new GoodbyePacketData { Reason = ConnectionTerminationReason.LostHeartbeat },
+                                    Event = ClientEventType.Goodbye
+                                });
+                                await socket.CloseAsync(
+                                    WebSocketCloseStatus.NormalClosure,
+                                    "Unknown event type.",
+                                    CancellationToken.None);
+                                return;
+                        }
+                        break;
+                    default:
+                        await SendToSocketAsync(socket, new GoodbyePacket
+                        {
+                            Data = new GoodbyePacketData { Reason = ConnectionTerminationReason.LostHeartbeat },
+                            Event = ClientEventType.Goodbye
+                        });
+                        await socket.CloseAsync(
+                            WebSocketCloseStatus.NormalClosure,
+                            "Lost heartbeat.",
+                            CancellationToken.None);
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error", e);
+                await socket.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure,
+                    "Client requested closure. Goodbye.",
+                    CancellationToken.None);
+                return;
+            }
         }
-
-        await socket.CloseAsync(
-            receiveResult.CloseStatus.Value,
-            receiveResult.CloseStatusDescription,
-            CancellationToken.None);
     }
 }

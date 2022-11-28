@@ -8,6 +8,8 @@ using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.Command;
 using Dalamud.Game.Gui;
+using Dalamud.Game.Text;
+using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
@@ -44,12 +46,7 @@ namespace GuildChat.Client
         private static RemoteQueuePopConfigWindow configWindow;
         internal static RemoteQueuePopConfig RemoteQueuePopConfig { get; set; }
 
-        private static List<IRemoteSink> Sinks = new List<IRemoteSink>
-        {
-            new DiscordSink(),
-            new TwilioSink()
-        };
-
+        
         private List<TerritoryType> Territories;
 
         public RemoteQueuePopPlugin()
@@ -58,12 +55,10 @@ namespace GuildChat.Client
             configWindow = new RemoteQueuePopConfigWindow();
             DalamudPluginInterface.UiBuilder.Draw += configWindow.DrawRichPresenceConfigWindow;
             DalamudPluginInterface.UiBuilder.OpenConfigUi += configWindow.Open;
-            foreach (var sink in Sinks)
-            {
-                sink.StartAsync(RemoteQueuePopConfig).GetAwaiter().GetResult();
-            }
+            Chat.
             
             ClientState.CfPop += ClientStateOnCfPop;
+            
             
             RegisterCommand();
             

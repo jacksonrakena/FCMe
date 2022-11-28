@@ -5,5 +5,8 @@ namespace GuildChat.Common.Structures.Packets.Server;
 public enum ServerEventType
 {
     [JsonPropertyName("AUTHORIZE")]
-    Authorize
+    Authorize,
+    
+    [JsonPropertyName("MESSAGE")]
+    Message
 }

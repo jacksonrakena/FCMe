@@ -5,14 +5,16 @@ using System.Text.Json;
 using GuildChat.Common.Structures;
 using GuildChat.Common.Structures.Packets.Client;
 using GuildChat.Common.Structures.Packets.Server;
+using GuildChat.Server.Connection.Grouped;
 using GuildChat.Server.Database;
+using GuildChat.Server.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace GuildChat.Server.Connection;
 
 public class ClientConnection : IDisposable
 {
-    public ClientConnection(WebSocket socket, IDisposable scope, ILogger<ClientConnection> logger, GuildChatContext database)
+    public ClientConnection(WebSocket socket, ConnectionManager owner, IServiceScope scope, ILogger<ClientConnection> logger, GuildChatContext database)
     {
         WebSocket = socket;
         Authorized = false;
@@ -21,13 +23,17 @@ public class ClientConnection : IDisposable
         _database = database;
         _logger = logger;
         _scope = scope;
+        _owner = owner;
     }
 
     private readonly ILogger<ClientConnection> _logger;
     private readonly GuildChatContext _database;
-    private readonly IDisposable _scope;
+    private readonly IServiceScope _scope;
+    private readonly ConnectionManager _owner;
     public Guid Id { get; set; } = Guid.NewGuid();
     public WebSocket WebSocket { get; set; }
+    
+    public ConnectionGroup? Group { get; set; }
     public bool Authorized { get; set; }
     
     public DateTime Opened { get; set; } = DateTime.Now;
@@ -92,6 +98,7 @@ public class ClientConnection : IDisposable
                     await CloseAsync(ConnectionTerminationReason.InvalidData);
                     return;
                 }
+
                 switch (packet.Event)
                 {
                     // Authorize
@@ -110,10 +117,26 @@ public class ClientConnection : IDisposable
                             await CloseAsync(ConnectionTerminationReason.AuthorizeFailed);
                             return;
                         }
-                        
+
                         _logger.LogInformation($"Successfully authorized connection {Id} as {AuthorizedAccount!.Id}");
-                        if (AuthorizedGameCharacter != null) _logger.LogInformation($"Authorized {Id} as {AuthorizedGameCharacter?.Id} with verification status {AuthorizedGameCharacter?.VerificationMethod:F}");
-                        
+                        _logger.LogInformation(
+                            $"Authorized {Id} as {AuthorizedGameCharacter?.Id} with verification status {AuthorizedGameCharacter?.VerificationMethod:F}");
+
+                        if (!_owner.Groups.TryGetValue(AuthorizedGameCharacter.FreeCompanyId, out var group))
+                        {
+                            group = new ConnectionGroup(AuthorizedGameCharacter.FreeCompanyId, this,
+                                _scope.ServiceProvider.GetRequiredService<ILogger<ConnectionGroup>>());
+                            _owner.Groups[AuthorizedGameCharacter.FreeCompanyId] = group;
+                            _logger.LogInformation($"Formed group {group.Id}");
+                        }
+                        else
+                        {
+                            _logger.LogInformation($"{Id} has joined group {group.Id}.");
+                            group.Connections.Add(this);
+                        }
+
+                        Group = group;
+
                         // Ready to receive chat messages.
                         await SendToSocketAsync(WebSocket, new ReadyPacket
                         {
@@ -121,6 +144,28 @@ public class ClientConnection : IDisposable
                             Data = new ReadyPacketData()
                         });
                         break;
+
+                    case ServerEventType.Message:
+                        if (Group == null) break;
+                        if (Group.Host?.Id != Id) break;
+                        
+                        var messagePacketData = packet.Data?.Deserialize<MessagePacketData>();
+                        if (messagePacketData == null)
+                        {
+                            await CloseAsync(ConnectionTerminationReason.InvalidData);
+                            return;
+                        }
+
+                        await new HttpClient().PostAsync(
+                            "",
+                            JsonContent.Create(new
+                            {
+                                content = messagePacketData.Content,
+                                username = messagePacketData.Author.Name,
+                                avatar_url = messagePacketData.Author.AvatarUrl
+                            }));
+
+                break;
                     
                     // Unknown event type.
                     default:

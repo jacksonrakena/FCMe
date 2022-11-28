@@ -2,6 +2,7 @@
 Co-operative client-server Discord chat bridge for FFXIV Free Company chat channels
 
 ### Roadmap
+GuildChat intends to be a **one-way** Discord chat bridge - i.e. sending messages from FFXIV chat to Discord. GuildChat does not, and will not, intend to support sending messages from Discord to FFXIV. Such practice would likely be a violation of the FINAL FANTASY® XIV User Agreement.
 #### Immediate
 Near-term or currently working on goals:
 - ASP.NET-based WebSocket co-ordinator (server)

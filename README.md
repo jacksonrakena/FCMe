@@ -25,7 +25,8 @@ Near-term or currently working on goals:
  
  ### Architecture
  A rough diagram of GuildChat's current architecture plan:  
- <img src="https://user-images.githubusercontent.com/44521335/204253345-54521c84-45fd-48e9-ad63-2947cd870d2a.svg" width=50% height=50% />
+ <img src="https://user-images.githubusercontent.com/44521335/204288775-eb787017-8c1b-461c-8ec5-998fb7cdd3f3.svg" width=50% height=50% />
+ <img src="https://user-images.githubusercontent.com/44521335/204288764-22481ba1-1baa-4a88-8a46-ef8562253f3b.svg" width=60% height=60% />
 
  #### Questions
   - How will Free Company users be verified?

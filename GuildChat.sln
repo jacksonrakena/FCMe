@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuildChat.Client", "src\GuildChat.Client\GuildChat.Client.csproj", "{42AAB406-846E-49A2-B2E4-D1428DACB8B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuildChat.Server", "src\GuildChat.Server\GuildChat.Server\GuildChat.Server.csproj", "{653AEABD-EB18-4B7C-9284-A9BCB8D2B822}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuildChat.Server", "src\GuildChat.Server\GuildChat.Server.csproj", "{653AEABD-EB18-4B7C-9284-A9BCB8D2B822}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuildChat.Common", "src\GuildChat.Common\GuildChat.Common.csproj", "{1EE68FB6-8F67-4C1A-802B-02D280DCFF24}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{653AEABD-EB18-4B7C-9284-A9BCB8D2B822}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{653AEABD-EB18-4B7C-9284-A9BCB8D2B822}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{653AEABD-EB18-4B7C-9284-A9BCB8D2B822}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EE68FB6-8F67-4C1A-802B-02D280DCFF24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EE68FB6-8F67-4C1A-802B-02D280DCFF24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EE68FB6-8F67-4C1A-802B-02D280DCFF24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EE68FB6-8F67-4C1A-802B-02D280DCFF24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

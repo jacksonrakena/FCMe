@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace GuildChat.Server.Structures.Packets.Client;
+namespace GuildChat.Common.Structures.Packets.Client;
 
 public enum ConnectionTerminationReason
 {
@@ -9,7 +9,11 @@ public enum ConnectionTerminationReason
     LostHeartbeat,
     ServerUnavailable,
     Maintenance,
-    AuthorizeFailed
+    AuthorizeFailed,
+    NoReauthorization,
+    UnknownEvent,
+    InvalidData,
+    InternalServerError
 }
 public class GoodbyePacketData : IPacketData
 {

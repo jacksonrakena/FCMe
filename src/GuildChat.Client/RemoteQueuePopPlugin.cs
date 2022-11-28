@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Dalamud;
 using Dalamud.Data;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
@@ -13,16 +11,12 @@ using Dalamud.Game.Gui;
 using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
-using Discord;
-using Discord.WebSocket;
-using Lumina;
+using GuildChat.Client.Configuration;
+using GuildChat.Client.Interface;
+using GuildChat.Client.Sinks;
 using Lumina.Excel.GeneratedSheets;
-using RemoteQueuePop.Configuration;
-using RemoteQueuePop.Interface;
-using RemoteQueuePop.Sinks;
 
-
-namespace RemoteQueuePop
+namespace GuildChat.Client
 {
     internal class RemoteQueuePopPlugin : IDalamudPlugin, IDisposable
     {
@@ -64,7 +58,6 @@ namespace RemoteQueuePop
             configWindow = new RemoteQueuePopConfigWindow();
             DalamudPluginInterface.UiBuilder.Draw += configWindow.DrawRichPresenceConfigWindow;
             DalamudPluginInterface.UiBuilder.OpenConfigUi += configWindow.Open;
-            
             foreach (var sink in Sinks)
             {
                 sink.StartAsync(RemoteQueuePopConfig).GetAwaiter().GetResult();
@@ -81,7 +74,6 @@ namespace RemoteQueuePop
 
         public async Task TryAuthorizeAsync()
         {
-            Chat.
         }
 
         private void ClientStateOnCfPop(object sender, ContentFinderCondition e)

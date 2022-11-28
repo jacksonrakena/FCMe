@@ -92,4 +92,9 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
+
+
+    <ItemGroup>
+      <ProjectReference Include="..\GuildChat.Common\GuildChat.Common.csproj" />
+    </ItemGroup>
 </Project>

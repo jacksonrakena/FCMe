@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace GuildChat.Server.Structures.Packets.Client;
+namespace GuildChat.Common.Structures.Packets.Client;
 
 public class HelloPacketData : IPacketData
 {

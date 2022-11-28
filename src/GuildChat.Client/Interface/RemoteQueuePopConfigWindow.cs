@@ -1,11 +1,9 @@
 using System.Numerics;
-using Dalamud.Interface.Colors;
 using Dalamud.Logging;
-using Discord;
+using GuildChat.Client.Configuration;
 using ImGuiNET;
-using RemoteQueuePop.Configuration;
 
-namespace RemoteQueuePop.Interface
+namespace GuildChat.Client.Interface
 {
     internal class RemoteQueuePopConfigWindow
     {
@@ -36,7 +34,6 @@ namespace RemoteQueuePop.Interface
                 ImGui.Text("You'll need a Discord token from the Discord developer console. Make sure it's in one of your servers, so it can DM you.");
                 ImGui.InputText("Discord token", ref _remoteQueuePopConfig.Token, 100);
                 ImGui.Separator();
-                ImGui.Text("State: " + RemoteQueuePopPlugin.Client.ConnectionState.ToString("G") + "_" + RemoteQueuePopPlugin.Client.LoginState.ToString("G"));
 
                 ImGui.PopStyleVar();
 
@@ -44,8 +41,6 @@ namespace RemoteQueuePop.Interface
 
                 if (ImGui.Button("Start"))
                 {
-                    RemoteQueuePopPlugin.Client.LoginAsync(TokenType.Bot, _remoteQueuePopConfig.Token).GetAwaiter().GetResult();
-                    RemoteQueuePopPlugin.Client.StartAsync();
                 }
                 if (ImGui.Button("Save and close"))
                 {

@@ -1,15 +1,15 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace GuildChat.Server.Structures.Packets.Server;
+namespace GuildChat.Common.Structures.Packets.Server;
 
 public class AuthorizePacketData : IPacketData
 {
-    [JsonPropertyName("username")]
-    public string Username { get; set; }
+    [JsonPropertyName("api_key")]
+    public string ApiKey { get; set; }
     
-    [JsonPropertyName("password")]
-    public string Password { get; set; }
-    
+    [JsonPropertyName("character_id")]
+    public string CharacterId { get; set; }
+
     [JsonPropertyName("client_info")]
     public AuthorizeClientInformation ClientInformation { get; set; }
 }

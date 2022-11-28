@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
+using GuildChat.Client.Configuration;
 using Lumina.Excel.GeneratedSheets;
-using RemoteQueuePop.Configuration;
 
-namespace RemoteQueuePop.Sinks;
+namespace GuildChat.Client.Sinks;
 
 public class TwilioSink : IRemoteSink
 {

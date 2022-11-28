@@ -1,6 +1,6 @@
 ﻿using Dalamud.Configuration;
 
-namespace RemoteQueuePop.Configuration
+namespace GuildChat.Client.Configuration
 {
     public class RemoteQueuePopConfig : IPluginConfiguration
     {

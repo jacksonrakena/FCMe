@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace GuildChat.Server.Structures.Packets.Server;
+namespace GuildChat.Common.Structures.Packets.Server;
 
 public class ServerPacket
 {

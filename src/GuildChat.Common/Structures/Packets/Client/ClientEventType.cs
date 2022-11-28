@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace GuildChat.Server.Structures;
+namespace GuildChat.Common.Structures.Packets.Client;
 
 public enum ClientEventType
 {
